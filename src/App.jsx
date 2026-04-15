@@ -1,25 +1,40 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
-  // 必要なstateの準備
+  // ① 初期値にlocalStorageのデータを使う
   const [inputText, setInputText] = useState('');
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState(() => {
+    const saved = localStorage.getItem('todos');
+    return saved ? JSON.parse(saved) : [];
+  });
 
-  // 追加ボタンをクリックした時の処理
+  // ② todosが変わるたびにlocalStorageに保存
+  useEffect(() => {
+    localStorage.setItem('todos', JSON.stringify(todos));
+  }, [todos]);
+
+  // 追加
   const handleAdd = () => {
-    if (inputText === '') return; // 入力欄がからの時は処理しない
-    setTodos([...todos, inputText]);
+    if (inputText === '') return;
+    setTodos([...todos, { id: Date.now(), text: inputText, completed: false }]);
     setInputText('');
   }
 
-  // 削除ボタンをクリックした時の処理
-  const handleDelete = (index) => {
-    setTodos(todos.filter((_, i) => i !== index));
+  // 削除
+  const handleDelete = (id) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  }
+
+  // 完了チェック
+  const handleToggle = (id) => {
+    setTodos(todos.map((todo) =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ));
   }
 
   return (
     <div>
-      <h1>ToDoリスト</h1>
+      <h1>ToDoアプリ</h1>
 
       {/* 入力エリア */}
       <input
@@ -31,13 +46,21 @@ function App() {
       />
       <button onClick={handleAdd}>追加</button>
 
-      {/* ToDoエリア */}
+      {/* ToDoリスト：1件以上ある時だけ表示 */}
       {todos.length > 0 && (
       <ul>
-        {todos.map((todo, index) => (
-        <li key={index}>
-          {todo}
-          <button onClick={() => handleDelete(index)}>削除</button>
+        {todos.map((todo) => (
+        <li key={todo.id}>
+          <input
+            type="checkbox"
+            name="ToDoリスト選択"
+            checked={todo.completed}
+            onChange={() => handleToggle(todo.id)}
+          />
+          <span style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
+            {todo.text}
+          </span>
+          <button onClick={() => handleDelete(todo.id)}>削除</button>
         </li>
         ))}
       </ul>
