@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import './App.css';
 
 function App() {
   // ① 初期値にlocalStorageのデータを使う
@@ -15,7 +16,7 @@ function App() {
 
   // 追加
   const handleAdd = () => {
-    if (inputText === '') return;
+    if (inputText.trim() === '') return setInputText('');
     setTodos([...todos, { id: Date.now(), text: inputText, completed: false }]);
     setInputText('');
   }
@@ -33,31 +34,33 @@ function App() {
   }
 
   return (
-    <div>
-      <h1>ToDoアプリ</h1>
+    <div className="container">
+      <h1 className="title">ToDoアプリ</h1>
 
       {/* 入力エリア */}
-      <input
-        type="text"
-        name="入力エリア"
-        value={inputText}
-        onChange={(e) => setInputText(e.target.value)}
-        placeholder="ToDoを入力してください"
-      />
-      <button onClick={handleAdd}>追加</button>
+      <div className="input-area">
+        <input
+          type="text"
+          name="入力エリア"
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          placeholder="ToDoを入力してください"
+        />
+        <button onClick={handleAdd}>追加</button>
+      </div>
 
       {/* ToDoリスト：1件以上ある時だけ表示 */}
       {todos.length > 0 && (
-      <ul>
+      <ul className="todo-list"  >
         {todos.map((todo) => (
-        <li key={todo.id}>
+        <li key={todo.id} className="todo-item">
           <input
             type="checkbox"
             name="ToDoリスト選択"
             checked={todo.completed}
             onChange={() => handleToggle(todo.id)}
           />
-          <span style={{ textDecoration: todo.completed ? 'line-through' : 'none' }}>
+          <span className={todo.completed ? 'completed' : ''}>
             {todo.text}
           </span>
           <button onClick={() => handleDelete(todo.id)}>削除</button>
